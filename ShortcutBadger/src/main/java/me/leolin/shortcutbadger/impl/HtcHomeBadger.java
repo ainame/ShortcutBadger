@@ -16,11 +16,10 @@ import me.leolin.shortcutbadger.util.ImageUtil;
  * Time: 下午7:15
  * To change this template use File | Settings | File Templates.
  */
-@Deprecated
-public class hTCHomeBadger extends ShortcutBadger {
+public class HtcHomeBadger extends ShortcutBadger {
     private static final String CONTENT_URI = "content://com.htc.launcher.settings/favorites?notify=true";
 
-    public hTCHomeBadger(Context context) {
+    public HtcHomeBadger(Context context) {
         super(context);
     }
 
@@ -32,10 +31,13 @@ public class hTCHomeBadger extends ShortcutBadger {
                 "string", getContextPackageName())).toString();
 
         boolean supportNotifyCount = true;
+        Cursor cursor = null;
         try {
-            Cursor cursor = contentResolver.query(mUri, new String[]{"notifyCount"}, "title=?", new String[]{appName}, null);
+            cursor = contentResolver.query(mUri, new String[]{"notifyCount"}, "title=?", new String[]{appName}, null);
         } catch (Throwable e) {
             supportNotifyCount = false;
+        } finally {
+            if (cursor != null) cursor.close();
         }
 
         if (supportNotifyCount) {
@@ -52,7 +54,5 @@ public class hTCHomeBadger extends ShortcutBadger {
             contentValues.put("icon", bytes);
             contentResolver.update(mUri, contentValues, "title=?", new String[]{appName});
         }
-
-
     }
 }

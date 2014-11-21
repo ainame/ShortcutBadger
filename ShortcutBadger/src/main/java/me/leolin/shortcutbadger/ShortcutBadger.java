@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import me.leolin.shortcutbadger.impl.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -15,16 +14,6 @@ import me.leolin.shortcutbadger.impl.*;
  * To change this template use File | Settings | File Templates.
  */
 public abstract class ShortcutBadger {
-    private static final String HOME_PACKAGE_SONY = "com.sonyericsson.home";
-    private static final String HOME_PACKAGE_SAMSUNG = "com.sec.android.app.launcher";
-    private static final String HOME_PACKAGE_LG = "com.lge.launcher2";
-    private static final String HOME_PACKAGE_HTC = "com.htc.launcher";
-    private static final String HOME_PACKAGE_ANDROID = "com.android.launcher";
-    private static final String HOME_PACKAGE_APEX = "com.anddoes.launcher";
-    private static final String HOME_PACKAGE_ADW = "org.adw.launcher";
-    private static final String HOME_PACKAGE_ADW_EX = "org.adwfreak.launcher";
-    private static final String HOME_PACKAGE_NOVA = "com.teslacoilsw.launcher";
-
     private static final String MESSAGE_NOT_SUPPORT_BADGE_COUNT = "ShortBadger is currently not support the badgeCount \"%d\"";
     private static final String MESSAGE_NOT_SUPPORT_THIS_HOME = "ShortcutBadger is currently not support the home launcher package \"%s\"";
 
@@ -56,38 +45,21 @@ public abstract class ShortcutBadger {
         String currentHomePackage = resolveInfo.activityInfo.packageName;
 
         //different home launcher packages use different way adding badges
-        ShortcutBadger mShortcutBadger = null;
-        if (HOME_PACKAGE_SONY.equals(currentHomePackage)) {
-            mShortcutBadger = new SonyHomeBadger(context);
-        } else if (HOME_PACKAGE_SAMSUNG.equals(currentHomePackage)) {
-            mShortcutBadger = new SamsungHomeBadger(context);
-        } else if (HOME_PACKAGE_LG.equals(currentHomePackage)) {
-            mShortcutBadger = new LGHomeBadger(context);
-        } else if (HOME_PACKAGE_HTC.equals(currentHomePackage)) {
-//            mShortcutBadger = new hTCHomeBadger(context);
-            mShortcutBadger = new NewHtcHomeBadger(context);
-        } else if (HOME_PACKAGE_ANDROID.equals(currentHomePackage)) {
-            mShortcutBadger = new AndroidHomeBadger(context);
-        } else if (HOME_PACKAGE_APEX.equals(currentHomePackage)) {
-            mShortcutBadger = new ApexHomeBadger(context);
-        } else if (HOME_PACKAGE_ADW.equals(currentHomePackage)
-                || HOME_PACKAGE_ADW_EX.equals(currentHomePackage)) {
-            mShortcutBadger = new AdwHomeBadger(context);
-        } else if (HOME_PACKAGE_NOVA.equals(currentHomePackage)) {
-            mShortcutBadger = new NovaHomeBadger(context);
-        }
+        ShortcutBadgerType badgerType = ShortcutBadgerType.byPackageName(currentHomePackage);
 
         //not support this home launcher package
-        if (mShortcutBadger == null) {
+        if (badgerType == null) {
             String exceptionMessage = String.format(MESSAGE_NOT_SUPPORT_THIS_HOME, currentHomePackage);
             throw new ShortcutBadgeException(exceptionMessage);
         }
-        try {
-            mShortcutBadger.executeBadge(badgeCount);
-        } catch (Throwable e) {
-            throw new ShortcutBadgeException("Unable to execute badge:" + e.getMessage());
-        }
 
+        for (ShortcutBadger shortcutBadger : badgerType.createBadger(context)) {
+            try {
+                shortcutBadger.executeBadge(badgeCount);
+            } catch (Throwable e) {
+                throw new ShortcutBadgeException("Unable to execute badge:" + e.getMessage());
+            }
+        }
     }
 
     protected String getEntryActivityName() {

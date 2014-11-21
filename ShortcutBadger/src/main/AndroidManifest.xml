@@ -13,6 +13,7 @@
 
     <!--for htc-->
     <uses-permission android:name="com.htc.launcher.permission.READ_SETTINGS"/>
+    <uses-permission android:name="com.htc.launcher.permission.WRITE_SETTINGS"/>
     <uses-permission android:name="com.htc.launcher.permission.UPDATE_SHORTCUT"/>
 
     <!--for sony-->
