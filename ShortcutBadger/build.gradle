@@ -1,4 +1,4 @@
-apply plugin: 'android-library'
+apply plugin: 'com.android.library'
 apply plugin: 'maven'
 group = 'me.leolin'
 version = '1.0.2'
@@ -18,7 +18,7 @@ android {
     }
     buildTypes {
         release {
-            runProguard false
+            minifyEnabled false
         }
     }
 
